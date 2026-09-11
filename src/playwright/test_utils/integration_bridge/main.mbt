@@ -2,7 +2,7 @@
 fn parse_int_arg(args : Array[String], index : Int, name : String) -> Int {
   match args.get(index) {
     Some(value) =>
-      try @strconv.parse_int(value.to_string_view(), base=10) catch {
+      try @string.parse_int(value.view(), base=10) catch {
         _ => @abort.abort("invalid int arg: " + name + "=" + value)
       } noraise {
         parsed => parsed
@@ -13,7 +13,7 @@ fn parse_int_arg(args : Array[String], index : Int, name : String) -> Int {
 
 ///|
 fn ensure(condition : Bool, message : String) -> Unit {
-  if not(condition) {
+  if !condition {
     @abort.abort(message)
   }
 }
@@ -78,7 +78,7 @@ async fn run_integration_bridge() -> Unit {
     shard_index~,
     shard_total~,
   )
-  let attempts : Ref[Int] = { val: 0 }
+  let attempts : Ref[Int] = { val: 0, }
   let value = try
     @test_utils.retry(async fn() -> Int {
       attempts.val = attempts.val + 1
@@ -99,7 +99,7 @@ async fn run_integration_bridge() -> Unit {
     v => v
   }
   ensure(timeout_value == 7, "timeout should execute successful callback")
-  let hit : Ref[Int] = { val: 0 }
+  let hit : Ref[Int] = { val: 0, }
   @test_utils.shard(item_index=0, item_total=2, fn() { hit.val = hit.val + 1 })
   @test_utils.shard(item_index=1, item_total=2, fn() { hit.val = hit.val + 1 })
   let expected_hit = (if @test_utils.in_shard(item_index=0, item_total=2) {
@@ -109,12 +109,14 @@ async fn run_integration_bridge() -> Unit {
     }) +
     (if @test_utils.in_shard(item_index=1, item_total=2) { 1 } else { 0 })
   ensure(hit.val == expected_hit, "shard should respect configured shard")
-  let should_fail = try? @test_utils.to_pass(async fn() {
-    assert_eq(true, false, msg="configured expect timeout")
-  })
-  match should_fail {
-    Ok(_) => @abort.abort("to_pass should fail under configured timeout")
-    Err(_) => ()
+  try
+    @test_utils.to_pass(async fn() {
+      assert_eq(true, false, msg="configured expect timeout")
+    })
+  catch {
+    _ => ()
+  } noraise {
+    _ => @abort.abort("to_pass should fail under configured timeout")
   }
   let config = @test_utils.current_test_config()
   ensure(config.retry_times == retry_times, "retry_times mismatch")

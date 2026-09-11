@@ -9,10 +9,6 @@ module.exports = defineConfig({
   expect: {
     timeout: 80,
   },
-  shard: {
-    current: 2,
-    total: 2,
-  },
   metadata: {
     moonbit: {
       expect_interval_ms: 1,

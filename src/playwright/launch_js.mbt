@@ -1,10 +1,13 @@
 ///| Browser process launcher (JS target)
+
 ///| Uses chromium-bidi's WebSocketServer for full BiDi protocol support.
 
 ///|
 /// Launch chromium-bidi WebSocket server and create a BiDi session.
 /// Returns the BiDi WebSocket URL (ws://localhost:PORT/session/ID).
-extern "js" fn ffi_launch_browser_process(headless : Bool) -> @js_async.Promise[String] =
+extern "js" fn ffi_launch_browser_process(
+  headless : Bool,
+) -> @js_async.Promise[String] =
   #| async (headless) => {
   #|   const { existsSync } = await import('node:fs');
   #|   const { WebSocketServer } = await import('chromium-bidi/bidiServer/WebSocketServer.js');

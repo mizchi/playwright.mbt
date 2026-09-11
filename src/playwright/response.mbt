@@ -78,13 +78,13 @@ pub async fn Response::body(self : Response) -> ResponseBody {
 ///|
 /// Get request associated with response
 pub fn Response::request(self : Response) -> Request {
-  { url_: self.url_, method_: "GET", headers_: Headers::empty() }
+  { url_: self.url_, method_: "GET", headers_: Headers::empty(), }
 }
 
 ///|
 /// Get frame associated with response
 pub fn Response::frame(self : Response) -> Frame {
-  { url_: self.url_, name_: "" }
+  { url_: self.url_, name_: "", }
 }
 
 ///|
@@ -230,7 +230,7 @@ pub fn Frame::locator(self : Frame, selector : String) -> Locator {
     label_text_exact: false,
     label_scope_selector: None,
   }
-  { state: { val: state } }
+  { state: { val: state, }, }
 }
 
 ///|
@@ -256,13 +256,13 @@ fn make_dummy_page() -> Page {
     contexts: [],
     default_context: None,
   }
-  let browser : Browser = { state: Ref::new(browser_state) }
+  let browser : Browser = { state: Ref(browser_state), }
   let context_state : BrowserContextState = {
     browser,
     user_context: "default",
     pages: [],
   }
-  let context : BrowserContext = { state: Ref::new(context_state) }
+  let context : BrowserContext = { state: Ref(context_state), }
   let page_state : PageState = {
     browser,
     context,
@@ -275,5 +275,5 @@ fn make_dummy_page() -> Page {
     response_completed_events: [],
     console_messages: [],
   }
-  { state: Ref::new(page_state) }
+  { state: Ref(page_state), }
 }

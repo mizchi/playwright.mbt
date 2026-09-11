@@ -20,8 +20,8 @@ pub struct ElementHandle {
 
 ///|
 pub fn JSHandle::from_json(value : Json) -> JSHandle {
-  let state : JSHandleState = { client: noop_client, context_id: "", value }
-  { state: Ref::new(state) }
+  let state : JSHandleState = { client: noop_client, context_id: "", value, }
+  { state: Ref(state), }
 }
 
 ///|
@@ -179,8 +179,8 @@ fn JSHandle::from_context(
   context_id : String,
   value : Json,
 ) -> JSHandle {
-  let state : JSHandleState = { client, context_id, value }
-  { state: Ref::new(state) }
+  let state : JSHandleState = { client, context_id, value, }
+  { state: Ref(state), }
 }
 
 ///|

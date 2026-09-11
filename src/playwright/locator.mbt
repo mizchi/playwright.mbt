@@ -33,7 +33,7 @@ pub fn Locator::filter(
     label_text_exact: state.label_text_exact,
     label_scope_selector: state.label_scope_selector,
   }
-  { state: { val: new_state } }
+  { state: { val: new_state, }, }
 }
 
 ///|
@@ -51,7 +51,7 @@ pub fn Locator::first(self : Locator) -> Locator {
     label_text_exact: state.label_text_exact,
     label_scope_selector: state.label_scope_selector,
   }
-  { state: { val: new_state } }
+  { state: { val: new_state, }, }
 }
 
 ///|
@@ -69,7 +69,7 @@ pub fn Locator::last(self : Locator) -> Locator {
     label_text_exact: state.label_text_exact,
     label_scope_selector: state.label_scope_selector,
   }
-  { state: { val: new_state } }
+  { state: { val: new_state, }, }
 }
 
 ///|
@@ -87,7 +87,7 @@ pub fn Locator::nth(self : Locator, index : Int) -> Locator {
     label_text_exact: state.label_text_exact,
     label_scope_selector: state.label_scope_selector,
   }
-  { state: { val: new_state } }
+  { state: { val: new_state, }, }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn Locator::locator(self : Locator, selector : String) -> Locator {
     label_text_exact: false,
     label_scope_selector: None,
   }
-  { state: { val: new_state } }
+  { state: { val: new_state, }, }
 }
 
 ///|
@@ -152,7 +152,7 @@ pub fn Locator::get_by_text(
     label_text_exact: state.label_text_exact,
     label_scope_selector: state.label_scope_selector,
   }
-  { state: { val: new_state } }
+  { state: { val: new_state, }, }
 }
 
 ///|
@@ -179,7 +179,7 @@ pub fn Locator::get_by_label(
     label_text_exact: exact_flag,
     label_scope_selector: Some(state.selector),
   }
-  { state: { val: new_state } }
+  { state: { val: new_state, }, }
 }
 
 ///|
@@ -226,7 +226,6 @@ pub async fn Locator::click(
     self.element_expression() +
     ".click()"
   let _ = self.page_eval(expr)
-
 }
 
 ///|
@@ -241,7 +240,6 @@ pub async fn Locator::dblclick(
     self.element_expression() +
     "; if (!el) return; const ev = new MouseEvent('dblclick',{bubbles:true}); el.dispatchEvent(ev); })()"
   let _ = self.page_eval(expr)
-
 }
 
 ///|
@@ -269,7 +267,6 @@ pub async fn Locator::fill(
     arguments=args,
   )
   consume(result)
-
 }
 
 ///|
@@ -300,7 +297,6 @@ pub async fn Locator::type_(
     js_string_literal(text) +
     "; el.dispatchEvent(new Event('input',{bubbles:true})); })()"
   let _ = self.page_eval(expr)
-
 }
 
 ///|
@@ -319,7 +315,6 @@ pub async fn Locator::press(
     js_string_literal(key) +
     ",bubbles:true}); el.dispatchEvent(ev); })()"
   let _ = self.page_eval(expr)
-
 }
 
 ///|
@@ -335,7 +330,6 @@ pub async fn Locator::check(
     self.element_expression() +
     "; if (!el) return; el.checked = true; el.dispatchEvent(new Event('change',{bubbles:true})); })()"
   let _ = self.page_eval(expr)
-
 }
 
 ///|
@@ -351,7 +345,6 @@ pub async fn Locator::uncheck(
     self.element_expression() +
     "; if (!el) return; el.checked = false; el.dispatchEvent(new Event('change',{bubbles:true})); })()"
   let _ = self.page_eval(expr)
-
 }
 
 ///|
@@ -400,7 +393,6 @@ pub async fn Locator::hover(
     self.element_expression() +
     "; if (!el) return; const ev = new MouseEvent('mouseover',{bubbles:true}); el.dispatchEvent(ev); })()"
   let _ = self.page_eval(expr)
-
 }
 
 ///|
@@ -412,7 +404,6 @@ pub async fn Locator::focus(self : Locator, timeout? : Int) -> Unit {
     self.element_expression() +
     ".focus()"
   let _ = self.page_eval(expr)
-
 }
 
 ///|
@@ -424,7 +415,6 @@ pub async fn Locator::blur(self : Locator, timeout? : Int) -> Unit {
     self.element_expression() +
     ".blur()"
   let _ = self.page_eval(expr)
-
 }
 
 ///|
@@ -439,7 +429,6 @@ pub async fn Locator::scroll_into_view_if_needed(
     self.element_expression() +
     ".scrollIntoView()"
   let _ = self.page_eval(expr)
-
 }
 
 ///| Property Methods
@@ -448,7 +437,7 @@ pub async fn Locator::scroll_into_view_if_needed(
 /// Get inner text
 pub async fn Locator::inner_text(self : Locator, timeout? : Int) -> String {
   consume(timeout)
-  match self.eval_string(self.element_expression() + "?.inner_text") {
+  match self.eval_string(self.element_expression() + "?.innerText") {
     Some(v) => v
     None => ""
   }
@@ -458,7 +447,7 @@ pub async fn Locator::inner_text(self : Locator, timeout? : Int) -> String {
 /// Get inner HTML
 pub async fn Locator::inner_html(self : Locator, timeout? : Int) -> String {
   consume(timeout)
-  match self.eval_string(self.element_expression() + "?.inner_html") {
+  match self.eval_string(self.element_expression() + "?.innerHTML") {
     Some(v) => v
     None => ""
   }
@@ -468,7 +457,7 @@ pub async fn Locator::inner_html(self : Locator, timeout? : Int) -> String {
 /// Get text content
 pub async fn Locator::text_content(self : Locator, timeout? : Int) -> String? {
   consume(timeout)
-  self.eval_string(self.element_expression() + "?.text_content")
+  self.eval_string(self.element_expression() + "?.textContent")
 }
 
 ///|
@@ -497,7 +486,7 @@ pub async fn Locator::get_attribute(
   consume(timeout)
   self.eval_string(
     self.element_expression() +
-    "?.get_attribute(" +
+    "?.getAttribute(" +
     js_string_literal(name) +
     ")",
   )
@@ -612,19 +601,15 @@ pub async fn Locator::wait_for(
   match (state, timeout) {
     (Some(s), Some(t)) => {
       let _ = page.wait_for_selector(selector, state=s, timeout=t)
-
     }
     (Some(s), None) => {
       let _ = page.wait_for_selector(selector, state=s)
-
     }
     (None, Some(t)) => {
       let _ = page.wait_for_selector(selector, timeout=t)
-
     }
     (None, None) => {
       let _ = page.wait_for_selector(selector)
-
     }
   }
 }
@@ -690,7 +675,7 @@ fn Locator::from_selector(page : Page, selector : String) -> Locator {
     label_text_exact: false,
     label_scope_selector: None,
   }
-  { state: { val: state } }
+  { state: { val: state, }, }
 }
 
 ///|
@@ -732,7 +717,7 @@ fn Locator::element_expression(self : Locator) -> String {
       not_text_literal +
       "; const scopeSelector = " +
       scope_literal +
-      "; const scopes = scopeSelector ? Array.from(document.querySelectorAll(scopeSelector)) : []; const inScope = (el) => { if (!scopeSelector) return true; return scopes.some(s => s.contains(el)); }; const norm = (s) => (s || '').replace(/[\\u200B\\u200C\\u200D\\uFEFF]/g,'').replace(/[\\u00a0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]/g,' ').replace(/\\s+/g,' ').trim(); const query = norm(txt); const notQuery = notTxt ? norm(notTxt) : null; const textMatch = (t) => { const n = norm(t); return exact ? n === query : n.includes(query); }; const labelText = (el) => { const t = norm((el.inner_text || el.text_content || '')); return t.length > 0 ? t : null; }; const labelledByText = (el) => { const value = el.get_attribute && el.get_attribute('aria-labelledby'); if (!value) return null; const raw = value.split(/\\s+/).filter(Boolean); const ids = []; for (const id of raw) { if (ids.indexOf(id) >= 0) continue; ids.push(id); } const nodes = []; for (const id of ids) { const node = document.getElementById(id); if (node) nodes.push(node); } nodes.sort((a,b) => { if (a === b) return 0; const pos = a.compareDocumentPosition(b); if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1; if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1; return 0; }); const parts = []; for (const node of nodes) { const lt = labelText(node); if (lt) parts.push(lt); } if (parts.length === 0) return null; return norm(parts.join(' ')); }; const ariaLabelText = (el) => { const value = el.get_attribute && el.get_attribute('aria-label'); if (!value) return null; const t = norm(value); return t.length > 0 ? t : null; }; const labelTextFor = (el) => { const parts = []; const id = el.get_attribute && el.get_attribute('id'); if (id) { const rel = Array.from(document.querySelectorAll('label[for=\"' + id + '\"]')); for (const label of rel) { const t = labelText(label); if (t) parts.push(t); } } if (parts.length > 0) return norm(parts.join(' ')); let parent = el.parentElement; while (parent) { if (parent.tagName === 'LABEL') { const t = labelText(parent); if (t) return t; break; } parent = parent.parentElement; } return null; }; const accessibleName = (el) => { const by = labelledByText(el); if (by) return by; const aria = ariaLabelText(el); if (aria) return aria; const lab = labelTextFor(el); if (lab) return lab; return null; }; const labelScore = (el) => { const by = el.get_attribute && el.get_attribute('aria-labelledby'); if (by && by.trim().length > 0) return 0; const id = el.get_attribute && el.get_attribute('id'); if (id) { const rel = document.querySelector('label[for=\"' + id + '\"]'); if (rel) return 1; } let parent = el.parentElement; while (parent) { if (parent.tagName === 'LABEL') return 2; parent = parent.parentElement; } const aria = el.get_attribute && el.get_attribute('aria-label'); if (aria && aria.trim().length > 0) return 3; return 4; }; const is_visible = (el) => { if (!el || el.nodeType !== 1) return false; let cur = el; while (cur) { if (cur.hidden) return false; const ariaHidden = cur.get_attribute && cur.get_attribute('aria-hidden'); if (ariaHidden === 'true') return false; const style = (cur.ownerDocument && cur.ownerDocument.defaultView) ? cur.ownerDocument.defaultView.getComputedStyle(cur) : null; if (style) { if (style.display === 'none' || style.visibility === 'hidden' || (style.visibility === 'collapse' && (cur.tagName === 'TABLE' || cur.tagName === 'TBODY' || cur.tagName === 'TR' || cur.tagName === 'TD' || cur.tagName === 'TH')) || style.contentVisibility === 'hidden') return false; const op = parseFloat(style.opacity || '1'); if (op == 0) return false; } cur = cur.parentElement; } if (el.getClientRects && el.getClientRects().length === 0) return false; if (el.getBoundingClientRect) { const r = el.getBoundingClientRect(); if (r && (r.width <= 0 || r.height <= 0)) return false; } return true; }; const nodeDepth = (n) => { let d = 0; let cur = n; while (cur) { d = d + 1; cur = cur.parentNode; } return d; }; const domDistance = (a, b) => { if (!a || !b) return 1e9; let da = nodeDepth(a); let db = nodeDepth(b); let pa = a; let pb = b; while (da > db) { pa = pa.parentNode; da = da - 1; } while (db > da) { pb = pb.parentNode; db = db - 1; } while (pa && pb && pa !== pb) { pa = pa.parentNode; pb = pb.parentNode; } if (!pa || !pb) return 1e9; const lca = pa; return (nodeDepth(a) - nodeDepth(lca)) + (nodeDepth(b) - nodeDepth(lca)); }; const labelNodesFor = (el) => { const nodes = []; const labelledBy = el.get_attribute && el.get_attribute('aria-labelledby'); if (labelledBy) { const raw = labelledBy.split(/\\s+/).filter(Boolean); const ids = []; for (const id of raw) { if (ids.indexOf(id) >= 0) continue; ids.push(id); } for (const id of ids) { const node = document.getElementById(id); if (node) nodes.push(node); } } const id = el.get_attribute && el.get_attribute('id'); if (id) { const rel = Array.from(document.querySelectorAll('label[for=\"' + id + '\"]')); for (const label of rel) nodes.push(label); } let parent = el.parentElement; while (parent) { if (parent.tagName === 'LABEL') { nodes.push(parent); break; } parent = parent.parentElement; } return nodes; }; const labelDistance = (el) => { const nodes = labelNodesFor(el); if (nodes.length === 0) return 1e9; let best = 1e9; for (const node of nodes) { if (node.tagName === 'LABEL') { const forId = node.get_attribute && node.get_attribute('for'); const id = el.get_attribute && el.get_attribute('id'); if (forId && id && forId === id) return 0; if (node.contains && node.contains(el)) return 1; } const d = domDistance(el, node); if (d < best) best = d; } return best; }; let matches = []; const candidates = Array.from(document.querySelectorAll('input, textarea, select, button, [aria-labelledby], [aria-label]')); for (const el of candidates) { if (!inScope(el)) continue; const name = accessibleName(el); if (!name) continue; if (notQuery && name.includes(notQuery)) continue; if (!textMatch(name)) continue; matches.push(el); } if (matches.length === 0) { for (const label of labels) { if (!inScope(label)) continue; const t = labelText(label); if (!t) continue; if (notQuery && t.includes(notQuery)) continue; if (!textMatch(t)) continue; let control = null; const forId = label.get_attribute && label.get_attribute('for'); if (forId) { const target = document.getElementById(forId); if (target) control = target; } if (!control && label.querySelector) { control = label.querySelector('input, textarea, select, button'); } if (!control) control = label; if (!inScope(control)) continue; matches.push(control); } } if (matches.length > 1) { const visible = matches.filter(is_visible); if (visible.length > 0) matches = visible; matches.sort((a, b) => { const da = labelDistance(a); const db = labelDistance(b); if (da < db) return -1; if (da > db) return 1; const sa = labelScore(a); const sb = labelScore(b); if (sa < sb) return -1; if (sa > sb) return 1; if (a === b) return 0; const pos = a.compareDocumentPosition(b); if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1; if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1; return 0; }); } } const pick = (function(){ " +
+      "; const scopes = scopeSelector ? Array.from(document.querySelectorAll(scopeSelector)) : []; const inScope = (el) => { if (!scopeSelector) return true; return scopes.some(s => s.contains(el)); }; const norm = (s) => (s || '').replace(/[\\u200B\\u200C\\u200D\\uFEFF]/g,'').replace(/[\\u00a0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]/g,' ').replace(/\\s+/g,' ').trim(); const query = norm(txt); const notQuery = notTxt ? norm(notTxt) : null; const textMatch = (t) => { const n = norm(t); return exact ? n === query : n.includes(query); }; const labelText = (el) => { const t = norm((el.innerText || el.textContent || '')); return t.length > 0 ? t : null; }; const labelledByText = (el) => { const value = el.getAttribute && el.getAttribute('aria-labelledby'); if (!value) return null; const raw = value.split(/\\s+/).filter(Boolean); const ids = []; for (const id of raw) { if (ids.indexOf(id) >= 0) continue; ids.push(id); } const nodes = []; for (const id of ids) { const node = document.getElementById(id); if (node) nodes.push(node); } nodes.sort((a,b) => { if (a === b) return 0; const pos = a.compareDocumentPosition(b); if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1; if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1; return 0; }); const parts = []; for (const node of nodes) { const lt = labelText(node); if (lt) parts.push(lt); } if (parts.length === 0) return null; return norm(parts.join(' ')); }; const ariaLabelText = (el) => { const value = el.getAttribute && el.getAttribute('aria-label'); if (!value) return null; const t = norm(value); return t.length > 0 ? t : null; }; const labelTextFor = (el) => { const parts = []; const id = el.getAttribute && el.getAttribute('id'); if (id) { const rel = Array.from(document.querySelectorAll('label[for=\"' + id + '\"]')); for (const label of rel) { const t = labelText(label); if (t) parts.push(t); } } if (parts.length > 0) return norm(parts.join(' ')); let parent = el.parentElement; while (parent) { if (parent.tagName === 'LABEL') { const t = labelText(parent); if (t) return t; break; } parent = parent.parentElement; } return null; }; const accessibleName = (el) => { const by = labelledByText(el); if (by) return by; const aria = ariaLabelText(el); if (aria) return aria; const lab = labelTextFor(el); if (lab) return lab; return null; }; const labelScore = (el) => { const by = el.getAttribute && el.getAttribute('aria-labelledby'); if (by && by.trim().length > 0) return 0; const id = el.getAttribute && el.getAttribute('id'); if (id) { const rel = document.querySelector('label[for=\"' + id + '\"]'); if (rel) return 1; } let parent = el.parentElement; while (parent) { if (parent.tagName === 'LABEL') return 2; parent = parent.parentElement; } const aria = el.getAttribute && el.getAttribute('aria-label'); if (aria && aria.trim().length > 0) return 3; return 4; }; const is_visible = (el) => { if (!el || el.nodeType !== 1) return false; let cur = el; while (cur) { if (cur.hidden) return false; const ariaHidden = cur.getAttribute && cur.getAttribute('aria-hidden'); if (ariaHidden === 'true') return false; const style = (cur.ownerDocument && cur.ownerDocument.defaultView) ? cur.ownerDocument.defaultView.getComputedStyle(cur) : null; if (style) { if (style.display === 'none' || style.visibility === 'hidden' || (style.visibility === 'collapse' && (cur.tagName === 'TABLE' || cur.tagName === 'TBODY' || cur.tagName === 'TR' || cur.tagName === 'TD' || cur.tagName === 'TH')) || style.contentVisibility === 'hidden') return false; const op = parseFloat(style.opacity || '1'); if (op == 0) return false; } cur = cur.parentElement; } if (el.getClientRects && el.getClientRects().length === 0) return false; if (el.getBoundingClientRect) { const r = el.getBoundingClientRect(); if (r && (r.width <= 0 || r.height <= 0)) return false; } return true; }; const nodeDepth = (n) => { let d = 0; let cur = n; while (cur) { d = d + 1; cur = cur.parentNode; } return d; }; const domDistance = (a, b) => { if (!a || !b) return 1e9; let da = nodeDepth(a); let db = nodeDepth(b); let pa = a; let pb = b; while (da > db) { pa = pa.parentNode; da = da - 1; } while (db > da) { pb = pb.parentNode; db = db - 1; } while (pa && pb && pa !== pb) { pa = pa.parentNode; pb = pb.parentNode; } if (!pa || !pb) return 1e9; const lca = pa; return (nodeDepth(a) - nodeDepth(lca)) + (nodeDepth(b) - nodeDepth(lca)); }; const labelNodesFor = (el) => { const nodes = []; const labelledBy = el.getAttribute && el.getAttribute('aria-labelledby'); if (labelledBy) { const raw = labelledBy.split(/\\s+/).filter(Boolean); const ids = []; for (const id of raw) { if (ids.indexOf(id) >= 0) continue; ids.push(id); } for (const id of ids) { const node = document.getElementById(id); if (node) nodes.push(node); } } const id = el.getAttribute && el.getAttribute('id'); if (id) { const rel = Array.from(document.querySelectorAll('label[for=\"' + id + '\"]')); for (const label of rel) nodes.push(label); } let parent = el.parentElement; while (parent) { if (parent.tagName === 'LABEL') { nodes.push(parent); break; } parent = parent.parentElement; } return nodes; }; const labelDistance = (el) => { const nodes = labelNodesFor(el); if (nodes.length === 0) return 1e9; let best = 1e9; for (const node of nodes) { if (node.tagName === 'LABEL') { const forId = node.getAttribute && node.getAttribute('for'); const id = el.getAttribute && el.getAttribute('id'); if (forId && id && forId === id) return 0; if (node.contains && node.contains(el)) return 1; } const d = domDistance(el, node); if (d < best) best = d; } return best; }; let matches = []; const candidates = Array.from(document.querySelectorAll('input, textarea, select, button, [aria-labelledby], [aria-label]')); for (const el of candidates) { if (!inScope(el)) continue; const name = accessibleName(el); if (!name) continue; if (notQuery && name.includes(notQuery)) continue; if (!textMatch(name)) continue; matches.push(el); } if (matches.length === 0) { for (const label of labels) { if (!inScope(label)) continue; const t = labelText(label); if (!t) continue; if (notQuery && t.includes(notQuery)) continue; if (!textMatch(t)) continue; let control = null; const forId = label.getAttribute && label.getAttribute('for'); if (forId) { const target = document.getElementById(forId); if (target) control = target; } if (!control && label.querySelector) { control = label.querySelector('input, textarea, select, button'); } if (!control) control = label; if (!inScope(control)) continue; matches.push(control); } } if (matches.length > 1) { const visible = matches.filter(is_visible); if (visible.length > 0) matches = visible; matches.sort((a, b) => { const da = labelDistance(a); const db = labelDistance(b); if (da < db) return -1; if (da > db) return 1; const sa = labelScore(a); const sb = labelScore(b); if (sa < sb) return -1; if (sa > sb) return 1; if (a === b) return 0; const pos = a.compareDocumentPosition(b); if (pos & Node.DOCUMENT_POSITION_FOLLOWING) return -1; if (pos & Node.DOCUMENT_POSITION_PRECEDING) return 1; return 0; }); } const pick = (function(){ " +
       index_expr +
       " })(); return pick; })()"
     }
@@ -762,7 +747,7 @@ fn Locator::element_expression(self : Locator) -> String {
           exact_flag +
           "; const notTxt = " +
           not_text_literal +
-          "; const matches = els.filter(el => { const t = (el.text_content || '').trim(); if (notTxt && t.includes(notTxt)) return false; return exact ? t === txt : t.includes(txt); }); " +
+          "; const matches = els.filter(el => { const t = (el.textContent || '').trim(); if (notTxt && t.includes(notTxt)) return false; return exact ? t === txt : t.includes(txt); }); " +
           index_expr +
           " })()"
         }
@@ -786,7 +771,7 @@ fn Locator::element_expression(self : Locator) -> String {
               selector +
               ")); const notTxt = " +
               not_text_literal +
-              "; const matches = els.filter(el => { const t = (el.text_content || '').trim(); if (notTxt && t.includes(notTxt)) return false; return true; }); " +
+              "; const matches = els.filter(el => { const t = (el.textContent || '').trim(); if (notTxt && t.includes(notTxt)) return false; return true; }); " +
               index_expr +
               " })()"
             }
@@ -828,7 +813,11 @@ async fn Locator::eval_string(self : Locator, expression : String) -> String? {
   match result {
     Ok(json) =>
       match json_get_object(json, "result") {
-        Some(value) => remote_value_to_string(value)
+        Some(value) =>
+          match remote_value_to_json(value) {
+            String(text) => Some(text)
+            _ => None
+          }
         None => None
       }
     Err(_) => None

@@ -3,6 +3,7 @@ package "mizchi/playwright"
 
 import {
   "mizchi/webdriver/bidi",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -17,8 +18,7 @@ pub fn webkit() -> BrowserType
 // Errors
 pub suberror PlaywrightError {
   StrictModeViolation(selector~ : String, count~ : Int)
-}
-pub impl Eq for PlaywrightError
+} derive(Eq, @debug.Debug)
 pub impl Show for PlaywrightError
 
 // Types and methods
@@ -27,11 +27,10 @@ pub struct BoundingBox {
   y : Double
   width : Double
   height : Double
-}
+} derive(Eq, @debug.Debug)
 pub fn BoundingBox::from_json(Json) -> Self?
 pub fn BoundingBox::new(Double, Double, Double, Double) -> Self
 pub fn BoundingBox::to_json(Self) -> Json
-pub impl Eq for BoundingBox
 pub impl Show for BoundingBox
 
 pub struct Browser {
@@ -66,8 +65,7 @@ pub enum BrowserKind {
   Chromium
   Firefox
   WebKit
-}
-pub impl Eq for BrowserKind
+} derive(Eq, @debug.Debug)
 pub impl Show for BrowserKind
 
 pub struct BrowserType {
@@ -86,11 +84,16 @@ pub struct Clip {
   y : Double
   width : Double
   height : Double
-}
+} derive(Eq, @debug.Debug)
 pub fn Clip::new(Double, Double, Double, Double) -> Self
 pub fn Clip::to_json(Self) -> Json
-pub impl Eq for Clip
 pub impl Show for Clip
+
+pub(all) struct ConsoleMessage {
+  level : String
+  text : String
+  source : String
+}
 
 pub struct Cookie {
   name : String
@@ -102,11 +105,10 @@ pub struct Cookie {
   http_only : Bool?
   secure : Bool?
   same_site : String?
-}
+} derive(Eq, @debug.Debug)
 pub fn Cookie::from_json(Json) -> Self?
 pub fn Cookie::new(String, String, url? : String, domain? : String, path? : String, expires? : Double, http_only? : Bool, secure? : Bool, same_site? : String) -> Self
 pub fn Cookie::to_json(Self) -> Json
-pub impl Eq for Cookie
 pub impl Show for Cookie
 
 pub struct ElementHandle {
@@ -196,13 +198,12 @@ pub impl Show for Frame
 
 pub struct Headers {
   entries : Array[(String, String)]
-}
+} derive(Eq, @debug.Debug)
 pub fn Headers::empty() -> Self
 pub fn Headers::from_json(Json) -> Self
 pub fn Headers::from_pairs(Array[(String, String)]) -> Self
 pub fn Headers::get(Self, String) -> String?
 pub fn Headers::to_json(Self) -> Json
-pub impl Eq for Headers
 pub impl Show for Headers
 
 pub struct JSHandle {
@@ -222,11 +223,10 @@ pub fn JSHandle::raw(Self) -> Json
 pub enum Length {
   Points(Double)
   Css(String)
-}
+} derive(Eq, @debug.Debug)
 pub fn Length::css(String) -> Self
 pub fn Length::points(Double) -> Self
 pub fn Length::to_json(Self) -> Json
-pub impl Eq for Length
 pub impl Show for Length
 
 pub struct Locator {
@@ -281,10 +281,9 @@ pub struct Margin {
   right : Length?
   bottom : Length?
   left : Length?
-}
+} derive(Eq, @debug.Debug)
 pub fn Margin::new(top? : Length, right? : Length, bottom? : Length, left? : Length) -> Self
 pub fn Margin::to_json(Self) -> Json
-pub impl Eq for Margin
 pub impl Show for Margin
 
 pub enum NetworkEvent {
@@ -301,15 +300,24 @@ pub async fn Page::add_script_tag(Self, url? : String, path? : String, content? 
 pub async fn Page::add_style_tag(Self, url? : String, path? : String, content? : String) -> Json
 pub async fn Page::bring_to_front(Self) -> Unit
 pub async fn Page::check(Self, String, force? : Bool, no_wait_after? : Bool, timeout? : Int) -> Unit
+pub fn Page::clear_console(Self) -> Unit
 pub async fn Page::click(Self, String, button? : String, click_count? : Int, delay? : Int, force? : Bool, modifiers? : Array[String], no_wait_after? : Bool, position? : (Double, Double), timeout? : Int, trial? : Bool) -> Unit
 pub async fn Page::close(Self, run_before_unload? : Bool) -> Unit
 pub fn Page::close_with_error_callback(Self, (Error) -> Unit) -> Unit
+pub fn Page::console_errors(Self) -> Array[ConsoleMessage]
+pub fn Page::console_messages(Self) -> Array[ConsoleMessage]
 pub async fn Page::content(Self) -> String
 pub async fn Page::dblclick(Self, String, timeout? : Int, force? : Bool) -> Unit
+pub async fn Page::ensure_hydration(Self, timeout? : Int) -> Unit
 pub async fn Page::evaluate(Self, String, arg? : Json) -> Json
 pub async fn Page::evaluate_handle(Self, String, arg? : Json) -> JSHandle
 pub async fn Page::expose_function(Self, String, Json) -> Unit
+#label_migration(http_method, alias=method)
+pub async fn Page::fetch_json(Self, String, http_method? : String, body? : String, headers? : Array[(String, String)]) -> (Int, Json)
+#label_migration(http_method, alias=method)
+pub async fn Page::fetch_text(Self, String, http_method? : String, body? : String, headers? : Array[(String, String)]) -> (Int, String)
 pub async fn Page::fill(Self, String, String, force? : Bool, no_wait_after? : Bool, timeout? : Int) -> Unit
+pub async fn Page::fill_input(Self, String, String) -> Unit
 pub async fn Page::focus(Self, String, timeout? : Int) -> Unit
 pub fn Page::get_by_alt_text(Self, String, exact? : Bool) -> Locator
 pub fn Page::get_by_label(Self, String, exact? : Bool) -> Locator
@@ -338,11 +346,14 @@ pub fn Page::set_default_navigation_timeout(Self, Int) -> Unit
 pub fn Page::set_default_timeout(Self, Int) -> Unit
 pub async fn Page::set_extra_http_headers(Self, Headers) -> Unit
 pub async fn Page::set_viewport_size(Self, Int, Int) -> Unit
+pub async fn Page::shadow_click(Self, String, String) -> Unit
+pub async fn Page::shadow_text(Self, String, String) -> String
 pub async fn Page::title(Self) -> String
 pub async fn Page::type_(Self, String, String, delay? : Int, no_wait_after? : Bool, timeout? : Int) -> Unit
 pub async fn Page::uncheck(Self, String, force? : Bool, no_wait_after? : Bool, timeout? : Int) -> Unit
 pub fn Page::url(Self) -> String
 pub fn Page::viewport_size(Self) -> (Int, Int)?
+pub async fn Page::wait_for_content(Self, String, timeout? : Int) -> Bool
 pub async fn Page::wait_for_function(Self, String, arg? : Json, polling? : Int, timeout? : Int) -> Json
 pub async fn Page::wait_for_load_state(Self, state? : String, timeout? : Int) -> Unit
 pub async fn Page::wait_for_navigation(Self, timeout? : Int, url? : String, wait_until? : String) -> Response?
@@ -408,14 +419,12 @@ pub struct SelectOption {
   value : String?
   label : String?
   index : Int?
-}
+} derive(Eq, @debug.Debug)
 pub fn SelectOption::from_value(String) -> Self
 pub fn SelectOption::new(value? : String, label? : String, index? : Int) -> Self
 pub fn SelectOption::to_json(Self) -> Json
-pub impl Eq for SelectOption
 pub impl Show for SelectOption
 
 // Type aliases
 
 // Traits
-

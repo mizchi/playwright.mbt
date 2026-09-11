@@ -27,7 +27,7 @@ fn json_get_array(json : Json, key : String) -> Array[Json]? {
 
 ///|
 fn js_string_literal(value : String) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_char('"')
   for ch in value {
     match ch {
@@ -78,7 +78,7 @@ fn remote_value_to_json(value : Json) -> Json {
         Some(String("object")) =>
           match map.get("value") {
             Some(Array(entries)) => {
-              let obj : Map[String, Json] = {}
+              let obj : Map[String, Json] = Map([])
               for entry in entries {
                 match entry {
                   Array([key_rv, val_rv]) =>
@@ -104,7 +104,7 @@ fn remote_value_to_json(value : Json) -> Json {
         Some(String("map")) =>
           match map.get("value") {
             Some(Array(entries)) => {
-              let obj : Map[String, Json] = {}
+              let obj : Map[String, Json] = Map([])
               for entry in entries {
                 match entry {
                   Array([key_rv, val_rv]) =>
@@ -187,27 +187,76 @@ fn remote_value_to_string(value : Json) -> String? {
 ///|
 fn[T] consume(value : T) -> Unit {
   let _ = value
-
 }
 
 ///|
 /// Detect if a string looks like a JavaScript function expression.
 /// Returns true for: "() => ...", "(a) => ...", "function(...", "async (...", "async function"
 fn is_function_expression(s : String) -> Bool {
-  let trimmed = s.trim_space().to_string()
+  let trimmed = s.trim().to_owned()
   if trimmed.has_prefix("function") ||
     trimmed.has_prefix("async function") ||
     trimmed.has_prefix("async (") ||
     trimmed.has_prefix("async()") {
     return true
   }
-  // Arrow function patterns: "() =>", "(a) =>", "(a, b) =>", "a =>"
+  // Inspect the complete parameter group so an IIFE is evaluated as an
+  // expression, rather than passing its result to script.callFunction.
   if trimmed.has_prefix("(") {
-    return true
+    let mut depth = 0
+    let mut quote : Char? = None
+    let mut escaped = false
+    for index, ch in trimmed {
+      match quote {
+        Some(delimiter) =>
+          if escaped {
+            escaped = false
+          } else if ch == '\\' {
+            escaped = true
+          } else if ch == delimiter {
+            quote = None
+          }
+        None =>
+          match ch {
+            '\'' | '"' | '`' => quote = Some(ch)
+            '(' => depth = depth + 1
+            ')' => {
+              depth = depth - 1
+              if depth == 0 {
+                let rest = trimmed[index + 1:].trim()
+                return if rest.is_empty() {
+                  is_function_expression(trimmed[1:index].to_owned())
+                } else {
+                  rest.has_prefix("=>")
+                }
+              }
+            }
+            _ => ()
+          }
+      }
+    }
+    return false
   }
   // Single-param arrow: "x => ..."
   match trimmed.find("=>") {
-    Some(_) => true
+    Some(index) => {
+      let parameter = trimmed[:index].trim().to_owned()
+      let parameter = if parameter.has_prefix("async ") {
+        parameter[6:].trim().to_owned()
+      } else {
+        parameter
+      }
+      !parameter.is_empty() &&
+      parameter
+      .iter()
+      .all(ch => {
+        (ch >= 'a' && ch <= 'z') ||
+        (ch >= 'A' && ch <= 'Z') ||
+        (ch >= '0' && ch <= '9') ||
+        ch == '_' ||
+        ch == '$'
+      })
+    }
     None => false
   }
 }
@@ -220,7 +269,6 @@ let noop_client : @bidi.BidiClient = @bidi.BidiClient::new(
 ///|
 async fn async_noop() -> Unit {
   let _ = noop_client.connect()
-
 }
 
 ///|
@@ -228,11 +276,8 @@ async fn sleep_ms(ms : Int) -> Unit {
   if ms <= 0 {
     return
   }
-  let queue : @async.Queue[Unit] = @async.Queue::new(
-    kind=@aqueue.Kind::Unbounded,
-  )
+  let queue : @async.Queue[Unit] = @async.Queue(kind=@aqueue.Kind::Unbounded)
   let _ = @async.with_timeout_opt(ms, async fn() -> Unit { queue.get() })
-
 }
 
 ///|

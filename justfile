@@ -22,6 +22,10 @@ check-native:
 test:
     moon test --target {{target}}
 
+# Real Chromium DOM and configuration bridge integration tests
+test-integration:
+    cd test/integration && pnpm test
+
 # Run tests (native)
 test-native:
     moon test --target native

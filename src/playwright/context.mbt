@@ -6,14 +6,13 @@
 pub async fn BrowserContext::close(self : BrowserContext) -> Unit {
   let state = self.state.val
   for page_state in state.pages {
-    let page : Page = { state: page_state }
+    let page : Page = { state: page_state, }
     page.close() |> ignore
   }
   if state.user_context != "default" {
     let _ = state.browser.state.val.client.browser_remove_user_context(
       state.user_context,
     )
-
   }
 }
 
@@ -26,7 +25,6 @@ pub fn BrowserContext::close_with_error_callback(
 ) -> Unit {
   let _ = self
   let _ = on_error
-
 }
 
 ///|
@@ -53,7 +51,7 @@ pub async fn BrowserContext::new_page(self : BrowserContext) -> Page {
     response_completed_events: [],
     console_messages: [],
   }
-  let page : Page = { state: Ref::new(page_state) }
+  let page : Page = { state: Ref(page_state), }
   state.pages.push(page.state)
   page
 }
@@ -63,7 +61,7 @@ pub async fn BrowserContext::new_page(self : BrowserContext) -> Page {
 pub fn BrowserContext::pages(self : BrowserContext) -> Array[Page] {
   let list : Array[Page] = []
   for page_state in self.state.val.pages {
-    let page : Page = { state: page_state }
+    let page : Page = { state: page_state, }
     list.push(page)
   }
   list
@@ -77,7 +75,6 @@ pub fn BrowserContext::set_default_navigation_timeout(
 ) -> Unit {
   let _ = self
   let _ = timeout
-
 }
 
 ///|
@@ -88,7 +85,6 @@ pub fn BrowserContext::set_default_timeout(
 ) -> Unit {
   let _ = self
   let _ = timeout
-
 }
 
 ///|

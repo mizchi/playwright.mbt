@@ -57,7 +57,6 @@ fn resolve_shard_index(shard_index : Int?, shard_total : Int) -> Int {
 ///|
 fn[T] consume(value : T) -> Unit {
   let _ = value
-
 }
 
 ///|
@@ -65,26 +64,23 @@ async fn sleep_ms(ms : Int) -> Unit {
   if ms <= 0 {
     return
   }
-  let queue : @async.Queue[Unit] = @async.Queue::new(
-    kind=@aqueue.Kind::Unbounded,
-  )
+  let queue : @async.Queue[Unit] = @async.Queue(kind=@aqueue.Kind::Unbounded)
   let _ = @async.with_timeout_opt(ms, async fn() -> Unit { queue.get() })
-
 }
 
 ///|
 pub async fn[T] retry(times? : Int, run : async () -> T) -> T {
   let max_attempts = resolve_retry_times(times)
   for attempt = 1 {
-    let result : Result[T, Error] = try? run()
-    match result {
-      Ok(value) => break value
-      Err(_) => {
+    try run() catch {
+      error => {
         if attempt >= max_attempts {
-          break result.unwrap_or_error()
+          raise error
         }
         continue attempt + 1
       }
+    } noraise {
+      value => break value
     }
   }
 }
@@ -105,13 +101,11 @@ pub async fn to_pass(
   let interval_ms = resolve_expect_interval_ms(interval)
   let start = @async.now()
   for attempt = 0 {
-    let result : Result[Unit, Error] = try? run()
-    match result {
-      Ok(_) => return ()
-      Err(_) => {
+    try run() catch {
+      error => {
         let elapsed = (@async.now() - start).to_int()
         if elapsed >= timeout_ms {
-          result.unwrap_or_error()
+          raise error
         }
         let remaining = timeout_ms - elapsed
         let wait_ms = if interval_ms < remaining {
@@ -122,6 +116,8 @@ pub async fn to_pass(
         sleep_ms(wait_ms)
         continue attempt + 1
       }
+    } noraise {
+      _ => return
     }
   }
 }
@@ -151,7 +147,7 @@ pub fn skip(run : () -> Unit) -> Unit {
 
 ///|
 pub fn skip_if(condition~ : Bool, run : () -> Unit) -> Unit {
-  if not(condition) {
+  if !condition {
     run()
   }
 }
@@ -163,7 +159,7 @@ pub fn skip_async(run : async () -> Unit) -> Unit {
 
 ///|
 pub async fn skip_if_async(condition~ : Bool, run : async () -> Unit) -> Unit {
-  if not(condition) {
+  if !condition {
     run()
   }
 }
@@ -175,16 +171,16 @@ pub fn fail(
   msg? : String,
   loc~ : SourceLoc,
 ) -> Unit raise {
-  let result : Result[Unit, Error] = try? run()
-  match result {
-    Ok(_) => {
+  try run() catch {
+    _ => ()
+  } noraise {
+    _ => {
       let message = match msg {
         Some(value) => value
         None => "expected block to fail"
       }
       assert_eq(true, false, msg=message, loc~)
     }
-    Err(_) => ()
   }
 }
 
@@ -205,16 +201,16 @@ pub async fn fail_async(
   msg? : String,
   loc~ : SourceLoc,
 ) -> Unit {
-  let result : Result[Unit, Error] = try? run()
-  match result {
-    Ok(_) => {
+  try run() catch {
+    _ => ()
+  } noraise {
+    _ => {
       let message = match msg {
         Some(value) => value
         None => "expected block to fail"
       }
       assert_eq(true, false, msg=message, loc~)
     }
-    Err(_) => ()
   }
 }
 

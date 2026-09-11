@@ -1,6 +1,6 @@
 import {
-  "mizchi/playwright" @playwright,
-  "mizchi/playwright/test_utils" @test_utils,
+  "mizchi/playwright",
+  "mizchi/playwright/test_utils",
 }
 
 import {

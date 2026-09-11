@@ -2,21 +2,20 @@
 /// BrowserType and entry points
 
 ///|
-const DEFAULT_WS_ENDPOINT : String = "ws://127.0.0.1:9222"
 
 ///|
 pub fn chromium() -> BrowserType {
-  { kind: BrowserKind::Chromium }
+  { kind: BrowserKind::Chromium, }
 }
 
 ///|
 pub fn firefox() -> BrowserType {
-  { kind: BrowserKind::Firefox }
+  { kind: BrowserKind::Firefox, }
 }
 
 ///|
 pub fn webkit() -> BrowserType {
-  { kind: BrowserKind::WebKit }
+  { kind: BrowserKind::WebKit, }
 }
 
 ///|
@@ -50,7 +49,7 @@ pub async fn BrowserType::connect_with_transport(
   transport : @bidi.Transport,
 ) -> Browser {
   let client = @bidi.BidiClient::new(transport)
-  match client.session_new() {
+  match client.session_new(capabilities=Some(Json::object({}))) {
     Ok(_) => ()
     Err(_) => ()
   }
@@ -65,9 +64,9 @@ pub async fn BrowserType::connect_with_transport(
     contexts: [],
     default_context: None,
   }
-  let state_ref : Ref[BrowserState] = Ref::new(state)
+  let state_ref : Ref[BrowserState] = Ref(state)
   register_bidi_event_router(state_ref)
-  { state: state_ref }
+  { state: state_ref, }
 }
 
 ///| BrowserType Methods
@@ -93,8 +92,8 @@ pub async fn BrowserType::launch(
 ) -> Browser {
   consume(
     (
-      args, channel, chromium_sandbox, devtools, downloads_path, handle_sighup,
-      handle_sigint, handle_sigterm, slow_mo, timeout,
+      args, channel, chromium_sandbox, devtools, downloads_path, handle_sighup, handle_sigint,
+      handle_sigterm, slow_mo, timeout,
     ),
   )
   // If executable_path is a WebSocket URL, connect directly (legacy behavior)

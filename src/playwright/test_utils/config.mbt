@@ -75,7 +75,7 @@ pub fn default_test_config() -> TestConfig {
 }
 
 ///|
-let test_config_ref : Ref[TestConfig] = { val: default_test_config() }
+let test_config_ref : Ref[TestConfig] = { val: default_test_config(), }
 
 ///|
 pub fn current_test_config() -> TestConfig {
@@ -140,9 +140,8 @@ pub fn configure_test(
 pub fn[T] with_test_config(config : TestConfig, run : () -> T raise) -> T raise {
   let previous = current_test_config()
   set_test_config(config)
-  let result : Result[T, Error] = try? run()
-  set_test_config(previous)
-  result.unwrap_or_error()
+  defer set_test_config(previous)
+  run()
 }
 
 ///|
@@ -152,7 +151,6 @@ pub async fn[T] with_test_config_async(
 ) -> T {
   let previous = current_test_config()
   set_test_config(config)
-  let result : Result[T, Error] = try? run()
-  set_test_config(previous)
-  result.unwrap_or_error()
+  defer set_test_config(previous)
+  run()
 }

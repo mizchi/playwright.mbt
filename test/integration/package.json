@@ -6,6 +6,10 @@
     "test": "playwright test -c ./playwright.config.js"
   },
   "devDependencies": {
-    "@playwright/test": "^1.52.0"
+    "@playwright/test": "^1.52.0",
+    "@puppeteer/browsers": "2.13.0",
+    "chromium-bidi": "14.0.0",
+    "debug": "4.4.3",
+    "ws": "^8.21.3"
   }
 }

@@ -63,7 +63,7 @@ fn test_get_array_field(json : Json, key : String) -> Array[Json]? {
 
 ///|
 async test "chromium connect and page flow" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",
@@ -84,41 +84,43 @@ async test "chromium connect and page flow" {
   let title = page.title()
   inspect(title, content="Example")
   let req0 = @json.parse(sent.val[0]) catch { _ => Json::null() }
-  inspect(
+  let params0 = test_get_object_field(req0, "params").unwrap()
+  assert_true(test_get_object_field(params0, "capabilities") is Some(_))
+  @debug.debug_inspect(
     test_get_string_field(req0, "method"),
     content="Some(\"session.new\")",
   )
   let req1 = @json.parse(sent.val[1]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req1, "method"),
     content="Some(\"session.subscribe\")",
   )
   let req2 = @json.parse(sent.val[2]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req2, "method"),
     content="Some(\"browsingContext.create\")",
   )
   let req3 = @json.parse(sent.val[3]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req3, "method"),
     content="Some(\"browsingContext.navigate\")",
   )
   let params2 = test_get_object_field(req3, "params").unwrap_or(
     Json::object({}),
   )
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(params2, "url"),
     content="Some(\"https://example.com\")",
   )
   let req4 = @json.parse(sent.val[4]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req4, "method"),
     content="Some(\"script.evaluate\")",
   )
   let params3 = test_get_object_field(req4, "params").unwrap_or(
     Json::object({}),
   )
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(params3, "expression"),
     content="Some(\"document.title\")",
   )
@@ -146,8 +148,11 @@ test "headers and bounding box codecs" {
       "x-flag": Json::boolean(true),
     }),
   )
-  inspect(headers.get("content-type"), content="Some(\"text/html\")")
-  inspect(headers.get("x-flag"), content="Some(\"true\")")
+  @debug.debug_inspect(
+    headers.get("content-type"),
+    content="Some(\"text/html\")",
+  )
+  @debug.debug_inspect(headers.get("x-flag"), content="Some(\"true\")")
   match headers.get("x-number") {
     Some(value) => assert_true(value == "1" || value == "1.0")
     None => assert_true(false)
@@ -171,12 +176,11 @@ test "headers and bounding box codecs" {
   let _ = margin.to_json()
   let clip = Clip::new(1.0, 2.0, 3.0, 4.0)
   let _ = clip.to_json()
-
 }
 
 ///|
 async test "locator bounding box" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",
@@ -197,7 +201,7 @@ async test "locator bounding box" {
     None => assert_true(false)
   }
   let req = @json.parse(sent.val[3]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req, "method"),
     content="Some(\"script.evaluate\")",
   )
@@ -205,7 +209,7 @@ async test "locator bounding box" {
 
 ///|
 async test "expect locator text matchers" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",
@@ -225,11 +229,11 @@ async test "expect locator text matchers" {
   let req = @json.parse(sent.val[3]) catch { _ => Json::null() }
   let params = test_get_object_field(req, "params").unwrap_or(Json::object({}))
   match test_get_string_field(params, "expression") {
-    Some(expr) => assert_true(expr.contains("inner_text"))
+    Some(expr) => assert_true(expr.contains("innerText"))
     None => assert_true(false)
   }
   let req2 = @json.parse(sent.val[4]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req2, "method"),
     content="Some(\"script.evaluate\")",
   )
@@ -237,7 +241,7 @@ async test "expect locator text matchers" {
 
 ///|
 async test "expect locator state and page matchers" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",
@@ -268,7 +272,7 @@ async test "expect locator state and page matchers" {
 
 ///|
 async test "expect locator class css and focused" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",
@@ -336,7 +340,7 @@ async test "expect locator class css and focused" {
 
 ///|
 async test "handles and response body" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",
@@ -366,14 +370,11 @@ async test "handles and response body" {
     Some(_) => assert_true(false)
     None => assert_true(true)
   }
-  let strict_result : Result[ElementHandle?, Error] = try? page.wait_for_selector(
-    "div",
-    strict=true,
-  )
-  match strict_result {
-    Ok(_) => assert_true(false)
-    Err(PlaywrightError::StrictModeViolation(..)) => assert_true(true)
-    Err(_) => assert_true(false)
+  try page.wait_for_selector("div", strict=true) catch {
+    PlaywrightError::StrictModeViolation(..) => ()
+    _ => assert_true(false)
+  } noraise {
+    _ => assert_true(false)
   }
   let eval_result = handle.evaluate(
     "(node, arg) => arg",
@@ -381,12 +382,12 @@ async test "handles and response body" {
   )
   json_inspect(eval_result, content=Json::string("arg-ok"))
   let req2 = @json.parse(sent.val[3]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req2, "method"),
     content="Some(\"script.evaluate\")",
   )
   let req3 = @json.parse(sent.val[4]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req3, "method"),
     content="Some(\"browsingContext.locateNodes\")",
   )
@@ -396,10 +397,16 @@ async test "handles and response body" {
   let locator3 = test_get_object_field(params3, "locator").unwrap_or(
     Json::object({}),
   )
-  inspect(test_get_string_field(locator3, "type"), content="Some(\"css\")")
-  inspect(test_get_string_field(locator3, "value"), content="Some(\"div\")")
+  @debug.debug_inspect(
+    test_get_string_field(locator3, "type"),
+    content="Some(\"css\")",
+  )
+  @debug.debug_inspect(
+    test_get_string_field(locator3, "value"),
+    content="Some(\"div\")",
+  )
   let req4 = @json.parse(sent.val[5]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req4, "method"),
     content="Some(\"script.callFunction\")",
   )
@@ -409,7 +416,7 @@ async test "handles and response body" {
   let args4 = test_get_array_field(params4, "arguments").unwrap_or([])
   assert_true(args4.length() == 1)
   let req5 = @json.parse(sent.val[6]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req5, "method"),
     content="Some(\"browsingContext.locateNodes\")",
   )
@@ -419,10 +426,16 @@ async test "handles and response body" {
   let locator5 = test_get_object_field(params5, "locator").unwrap_or(
     Json::object({}),
   )
-  inspect(test_get_string_field(locator5, "type"), content="Some(\"css\")")
-  inspect(test_get_string_field(locator5, "value"), content="Some(\"div\")")
+  @debug.debug_inspect(
+    test_get_string_field(locator5, "type"),
+    content="Some(\"css\")",
+  )
+  @debug.debug_inspect(
+    test_get_string_field(locator5, "value"),
+    content="Some(\"div\")",
+  )
   let req6 = @json.parse(sent.val[7]) catch { _ => Json::null() }
-  inspect(
+  @debug.debug_inspect(
     test_get_string_field(req6, "method"),
     content="Some(\"script.callFunction\")",
   )
@@ -453,7 +466,7 @@ async test "handles and response body" {
 
 ///|
 async test "get_by_text and wait_for_timeout" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",
@@ -485,7 +498,7 @@ async test "get_by_text and wait_for_timeout" {
 
 ///|
 async test "filter has_text and get_by_label" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",
@@ -524,14 +537,14 @@ async test "filter has_text and get_by_label" {
     Some(expr) => {
       assert_true(expr.contains("querySelectorAll(\"label\")"))
       assert_true(expr.contains("const txt = \"Name\""))
-      assert_true(expr.contains("get_attribute('for')"))
+      assert_true(expr.contains("getAttribute('for')"))
       assert_true(expr.contains("aria-labelledby"))
       assert_true(expr.contains("aria-label"))
       assert_true(expr.contains("parts.join"))
       assert_true(expr.contains("label[for=\""))
       assert_true(expr.contains("labelledByText"))
       assert_true(expr.contains("accessibleName"))
-      assert_true(expr.contains("inner_text"))
+      assert_true(expr.contains("innerText"))
       assert_true(expr.contains("compareDocumentPosition"))
       assert_true(expr.contains("is_visible"))
       assert_true(expr.contains("getClientRects"))
@@ -569,7 +582,7 @@ async test "filter has_text and get_by_label" {
       assert_true(expr.contains("label[for=\""))
       assert_true(expr.contains("labelledByText"))
       assert_true(expr.contains("accessibleName"))
-      assert_true(expr.contains("inner_text"))
+      assert_true(expr.contains("innerText"))
       assert_true(expr.contains("compareDocumentPosition"))
       assert_true(expr.contains("is_visible"))
       assert_true(expr.contains("getClientRects"))
@@ -596,7 +609,7 @@ async test "filter has_text and get_by_label" {
 
 ///|
 async test "navigation wait and network events" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",
@@ -613,9 +626,9 @@ async test "navigation wait and network events" {
   let transport = make_mock_transport(sent, recv_queue)
   let browser = chromium().connect_with_transport(transport)
   let page = browser.new_page()
-  let requests : Ref[Array[String]] = { val: [] }
-  let responses : Ref[Array[Int]] = { val: [] }
-  let completed : Ref[Array[Int]] = { val: [] }
+  let requests : Ref[Array[String]] = { val: [], }
+  let responses : Ref[Array[Int]] = { val: [], }
+  let completed : Ref[Array[Int]] = { val: [], }
   page.on_request(fn(req : Request) { requests.val.push(req.url()) })
   page.on_response(fn(resp : Response) { responses.val.push(resp.status()) })
   page.on_response_completed(fn(resp : Response) {
@@ -639,7 +652,7 @@ async test "navigation wait and network events" {
 
 ///|
 async test "wait_for_request and wait_for_response" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",
@@ -678,7 +691,7 @@ async test "wait_for_request and wait_for_response" {
 
 ///|
 async test "wait_for_request match modes" {
-  let sent : Ref[Array[String]] = { val: [] }
+  let sent : Ref[Array[String]] = { val: [], }
   let recv_queue : Ref[Array[String]] = {
     val: [
       "{\"id\":1,\"type\":\"success\",\"result\":{\"sessionId\":\"sid-1\",\"capabilities\":{}}}",

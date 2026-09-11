@@ -74,7 +74,7 @@ pub async fn Browser::new_context(
     user_context,
     pages: [],
   }
-  let ctx : BrowserContext = { state: Ref::new(ctx_state) }
+  let ctx : BrowserContext = { state: Ref(ctx_state), }
   state.contexts.push(ctx.state)
   ctx
 }
@@ -117,7 +117,7 @@ pub async fn Browser::new_page(
 pub fn Browser::contexts(self : Browser) -> Array[BrowserContext] {
   let list : Array[BrowserContext] = []
   for ctx_state in self.state.val.contexts {
-    let ctx : BrowserContext = { state: ctx_state }
+    let ctx : BrowserContext = { state: ctx_state, }
     list.push(ctx)
   }
   list
@@ -150,8 +150,8 @@ fn Browser::ensure_default_context(self : Browser) -> BrowserContext {
         user_context: "default",
         pages: [],
       }
-      let ctx : BrowserContext = { state: Ref::new(ctx_state) }
-      state.default_context = Some(Ref::new(ctx))
+      let ctx : BrowserContext = { state: Ref(ctx_state), }
+      state.default_context = Some(Ref(ctx))
       ctx
     }
   }

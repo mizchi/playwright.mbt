@@ -16,7 +16,10 @@ pub fn[T : Eq + Show] Expect::to_be(
   msg? : String,
   loc~ : SourceLoc,
 ) -> Unit raise {
-  assert_eq(self.actual, expected, msg?, loc~)
+  if self.actual != expected {
+    let message = msg.unwrap_or("expected \{self.actual} to equal \{expected}")
+    assert_true(false, msg=message, loc~)
+  }
 }
 
 ///|
@@ -27,7 +30,7 @@ pub fn[T : Eq + Show] Expect::to_equal(
   msg? : String,
   loc~ : SourceLoc,
 ) -> Unit raise {
-  assert_eq(self.actual, expected, msg?, loc~)
+  self.to_be(expected, msg?, loc~)
 }
 
 ///|
@@ -116,7 +119,7 @@ pub fn[T : Eq + Show] Expect::to_contain_item(
   }
   let message = match msg {
     Some(m) => m
-    None => "expected array to contain " + expected.to_string()
+    None => "expected array to contain " + Show::to_string(expected)
   }
   assert_eq(ok, true, msg=message, loc~)
 }
@@ -258,14 +261,14 @@ priv enum TextMatchKind {
 fn normalize_text(text : String) -> String {
   let chars = text.to_array()
   let out : Array[Char] = []
-  let in_space : Ref[Bool] = { val: false }
+  let in_space : Ref[Bool] = { val: false, }
   for ch in chars {
     if ch.is_whitespace() {
       if out.length() == 0 {
         in_space.val = true
         continue
       }
-      if not(in_space.val) {
+      if !in_space.val {
         out.push(' ')
         in_space.val = true
       }
@@ -332,10 +335,10 @@ fn parse_length(text : String) -> (Double, String)? {
       index = index + 1
     }
   }
-  if not(has_digit) {
+  if !has_digit {
     return None
   }
-  let unit_sb = StringBuilder::new()
+  let unit_sb = StringBuilder()
   while index < chars.length() {
     let ch = chars[index]
     if is_alpha(ch) || ch == '%' {
@@ -356,10 +359,7 @@ fn parse_length(text : String) -> (Double, String)? {
 ///|
 fn normalize_text_regex_pattern(pattern : String) -> String {
   if pattern.length() >= 2 && pattern.has_prefix("/") && pattern.has_suffix("/") {
-    let view = pattern.sub(start=1, end=pattern.length() - 1) catch {
-      _ => return pattern
-    }
-    view.to_string()
+    pattern[1:pattern.length() - 1].to_owned()
   } else {
     pattern
   }
@@ -377,13 +377,13 @@ fn class_tokens(text : String) -> Array[String] {
     return []
   }
   let out : Array[String] = []
-  let mut sb = StringBuilder::new()
+  let mut sb = StringBuilder()
   let mut has_token = false
   for ch in norm {
     if ch == ' ' {
       if has_token {
         out.push(sb.to_string())
-        sb = StringBuilder::new()
+        sb = StringBuilder()
         has_token = false
       }
     } else {
@@ -423,7 +423,7 @@ fn class_tokens_contains_all(
         break
       }
     }
-    if not(found) {
+    if !found {
       ok = false
       break
     }
@@ -433,10 +433,10 @@ fn class_tokens_contains_all(
 
 ///|
 fn join_list(items : Array[String]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut first = true
   for item in items {
-    if not(first) {
+    if !first {
       sb.write_view(", ")
     }
     sb.write_view(item)
@@ -676,7 +676,7 @@ async fn[T] wait_for_match(
   initial : T,
 ) -> (Bool, T) {
   let start = @async.now()
-  let last : Ref[T] = { val: initial }
+  let last : Ref[T] = { val: initial, }
   let matched = for attempt = 0 {
     let value = poll()
     last.val = value
@@ -740,7 +740,7 @@ fn locator_with_index(locator : Locator, index : Int) -> Locator {
     label_text_exact: state.label_text_exact,
     label_scope_selector: state.label_scope_selector,
   }
-  { state: { val: next } }
+  { state: { val: next, }, }
 }
 
 ///|
@@ -879,7 +879,7 @@ pub async fn Expect::to_have_class(
         while index < expected_list_value.length() {
           let loc = locator_with_index(self.actual, index)
           let exists = locator_exists(loc)
-          if not(exists) {
+          if !exists {
             all_present = false
             actuals.push("<missing>")
           } else {
@@ -898,7 +898,7 @@ pub async fn Expect::to_have_class(
       },
       fn(result : (Array[String], Bool, Bool)) {
         let (actuals, all_present, extra_exists) = result
-        if not(all_present) {
+        if !all_present {
           return false
         }
         if extra_exists {
@@ -921,10 +921,8 @@ pub async fn Expect::to_have_class(
           let item_mode = resolve_class_mode_for_expected(
             expected_value, mode, item_tokens,
           )
-          if not(
-              class_expected_matches(
-                actual_value, expected_value, item_mode, normalize_value, item_tokens,
-              ),
+          if !class_expected_matches(
+              actual_value, expected_value, item_mode, normalize_value, item_tokens,
             ) {
             ok = false
             break

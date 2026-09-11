@@ -1,6 +1,6 @@
 ///|
 async test "retry retries until callback succeeds" {
-  let attempts : Ref[Int] = { val: 0 }
+  let attempts : Ref[Int] = { val: 0, }
   let value = retry(times=3, async fn() -> Int {
     attempts.val = attempts.val + 1
     if attempts.val < 3 {
@@ -14,17 +14,19 @@ async test "retry retries until callback succeeds" {
 
 ///|
 async test "retry stops at retry limit and returns failure" {
-  let attempts : Ref[Int] = { val: 0 }
-  let result = try? retry(times=2, async fn() -> Int {
-    attempts.val = attempts.val + 1
-    assert_eq(true, false, msg="always fail")
-    0
-  })
-  assert_eq(attempts.val, 2)
-  match result {
-    Ok(_) => assert_eq(true, false, msg="retry should fail")
-    Err(_) => ()
+  let attempts : Ref[Int] = { val: 0, }
+  try
+    retry(times=2, async fn() -> Int {
+      attempts.val = attempts.val + 1
+      assert_eq(true, false, msg="always fail")
+      0
+    })
+  catch {
+    _ => ()
+  } noraise {
+    _ => assert_eq(true, false, msg="retry should fail")
   }
+  assert_eq(attempts.val, 2)
 }
 
 ///|
@@ -44,7 +46,7 @@ test "in_shard partitions items without overlap" {
 
 ///|
 test "shard runs callback only for selected shard" {
-  let hit : Ref[Int] = { val: 0 }
+  let hit : Ref[Int] = { val: 0, }
   shard(item_index=1, item_total=4, shard_index=1, shard_total=2, fn() {
     hit.val = hit.val + 1
   })
@@ -56,7 +58,7 @@ test "shard runs callback only for selected shard" {
 
 ///|
 async test "shard_async runs async callback only for selected shard" {
-  let hit : Ref[Int] = { val: 0 }
+  let hit : Ref[Int] = { val: 0, }
   shard_async(item_index=0, item_total=5, shard_index=1, shard_total=2, async fn() {
     hit.val = hit.val + 1
   })
@@ -74,19 +76,17 @@ async test "timeout returns value before deadline" {
 
 ///|
 async test "timeout fails when callback does not complete" {
-  let queue : @async.Queue[Int] = @async.Queue::new(
-    kind=@aqueue.Kind::Unbounded,
-  )
-  let result = try? timeout(ms=1, async fn() -> Int { queue.get() })
-  match result {
-    Ok(_) => assert_eq(true, false, msg="timeout should fail")
-    Err(_) => ()
+  let queue : @async.Queue[Int] = @async.Queue(kind=@aqueue.Kind::Unbounded)
+  try timeout(ms=1, async fn() -> Int { queue.get() }) catch {
+    _ => ()
+  } noraise {
+    _ => assert_eq(true, false, msg="timeout should fail")
   }
 }
 
 ///|
 async test "to_pass retries until assertion succeeds" {
-  let attempts : Ref[Int] = { val: 0 }
+  let attempts : Ref[Int] = { val: 0, }
   to_pass(timeout=100, interval=1, async fn() {
     attempts.val = attempts.val + 1
     assert_eq(attempts.val >= 3, true, msg="not ready")
@@ -96,14 +96,16 @@ async test "to_pass retries until assertion succeeds" {
 
 ///|
 async test "to_pass fails when timeout is reached" {
-  let attempts : Ref[Int] = { val: 0 }
-  let result = try? to_pass(timeout=10, interval=1, async fn() {
-    attempts.val = attempts.val + 1
-    assert_eq(true, false, msg="always fail")
-  })
-  match result {
-    Ok(_) => assert_eq(true, false, msg="to_pass should fail")
-    Err(_) => ()
+  let attempts : Ref[Int] = { val: 0, }
+  try
+    to_pass(timeout=10, interval=1, async fn() {
+      attempts.val = attempts.val + 1
+      assert_eq(true, false, msg="always fail")
+    })
+  catch {
+    _ => ()
+  } noraise {
+    _ => assert_eq(true, false, msg="to_pass should fail")
   }
   assert_true(attempts.val >= 1)
 }
@@ -128,7 +130,7 @@ async test "step_async returns callback result" {
 
 ///|
 test "skip and skip_if control execution" {
-  let hit : Ref[Int] = { val: 0 }
+  let hit : Ref[Int] = { val: 0, }
   skip(fn() { hit.val = hit.val + 1 })
   skip_if(condition=false, fn() { hit.val = hit.val + 1 })
   skip_if(condition=true, fn() { hit.val = hit.val + 1 })
@@ -137,7 +139,7 @@ test "skip and skip_if control execution" {
 
 ///|
 async test "skip_async and skip_if_async control execution" {
-  let hit : Ref[Int] = { val: 0 }
+  let hit : Ref[Int] = { val: 0, }
   skip_async(async fn() { hit.val = hit.val + 1 })
   skip_if_async(condition=false, async fn() { hit.val = hit.val + 1 })
   skip_if_async(condition=true, async fn() { hit.val = hit.val + 1 })
@@ -148,10 +150,10 @@ async test "skip_async and skip_if_async control execution" {
 test "fail and fixme expect failures" {
   fail(fn() { assert_eq(1, 2) })
   fixme(fn() { assert_eq(1, 2) })
-  let result : Result[Unit, Error] = try? fail(fn() { assert_eq(1, 1) })
-  match result {
-    Ok(_) => assert_eq(true, false, msg="fail should fail when block succeeds")
-    Err(_) => ()
+  try fail(fn() { assert_eq(1, 1) }) catch {
+    _ => ()
+  } noraise {
+    _ => assert_eq(true, false, msg="fail should fail when block succeeds")
   }
 }
 
@@ -159,13 +161,11 @@ test "fail and fixme expect failures" {
 async test "fail_async and fixme_async expect failures" {
   fail_async(async fn() { assert_eq(1, 2) })
   fixme_async(async fn() { assert_eq(1, 2) })
-  let result : Result[Unit, Error] = try? fail_async(async fn() {
-    assert_eq(1, 1)
-  })
-  match result {
-    Ok(_) =>
+  try fail_async(async fn() { assert_eq(1, 1) }) catch {
+    _ => ()
+  } noraise {
+    _ =>
       assert_eq(true, false, msg="fail_async should fail when block succeeds")
-    Err(_) => ()
   }
 }
 
@@ -181,7 +181,7 @@ async test "config setup controls helper defaults" {
     shard_index=2,
     shard_total=2,
   )
-  let attempts : Ref[Int] = { val: 0 }
+  let attempts : Ref[Int] = { val: 0, }
   let value = retry(async fn() -> Int {
     attempts.val = attempts.val + 1
     if attempts.val < 3 {
@@ -192,16 +192,16 @@ async test "config setup controls helper defaults" {
   assert_eq(value, 3)
   let timeout_value = timeout(async fn() -> Int { 7 })
   assert_eq(timeout_value, 7)
-  let hit : Ref[Int] = { val: 0 }
+  let hit : Ref[Int] = { val: 0, }
   shard(item_index=0, item_total=2, fn() { hit.val = hit.val + 1 })
   shard(item_index=1, item_total=2, fn() { hit.val = hit.val + 1 })
   assert_eq(hit.val, 1)
-  let should_fail = try? to_pass(async fn() {
-    assert_eq(true, false, msg="timeout from config")
-  })
-  match should_fail {
-    Ok(_) => assert_eq(true, false, msg="to_pass should fail from config")
-    Err(_) => ()
+  try
+    to_pass(async fn() { assert_eq(true, false, msg="timeout from config") })
+  catch {
+    _ => ()
+  } noraise {
+    _ => assert_eq(true, false, msg="to_pass should fail from config")
   }
   let config = current_test_config()
   assert_eq(config.retry_times, 3)

@@ -43,7 +43,7 @@ fn handle_navigation_event(
   let url = event_get_string(params, "url")
   match context_id {
     Some(ctx) => {
-      let evt : NavigationEvent = { event_name, url: url.unwrap_or("") }
+      let evt : NavigationEvent = { event_name, url: url.unwrap_or(""), }
       match find_page_state(state_ref.val, ctx) {
         Some(page_state) => {
           page_state.val.navigation_events.push(evt)
@@ -130,7 +130,7 @@ fn handle_log_entry(state_ref : Ref[BrowserState], params : Json) -> Unit {
     Some(ctx) =>
       match find_page_state(state_ref.val, ctx) {
         Some(page_state) =>
-          page_state.val.console_messages.push({ level, text, source })
+          page_state.val.console_messages.push({ level, text, source, })
         None => ()
       }
     None => ()
@@ -177,7 +177,7 @@ fn request_from_json(json : Json) -> Request? {
         Some(items) => headers_from_array(items)
         None => Headers::empty()
       }
-      Some({ url_: url, method_, headers_: headers })
+      Some({ url_: url, method_, headers_: headers, })
     }
     _ => None
   }

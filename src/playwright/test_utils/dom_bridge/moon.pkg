@@ -1,0 +1,9 @@
+import {
+  "mizchi/playwright" @pw,
+  "moonbitlang/core/env",
+  "moonbitlang/async",
+}
+
+pkgtype(kind: "executable")
+
+supported_targets = "js"

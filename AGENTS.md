@@ -16,7 +16,7 @@ just info      # generate type definition files
 
 ## Project Structure
 
-- `moon.mod.json` - Module definition
+- `moon.mod` - Module definition
 - `moon.pkg` - Package dependencies (per directory)
 - `*.mbt` - Source files
 - `*_test.mbt` - Blackbox test files

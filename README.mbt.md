@@ -3,6 +3,20 @@
 Playwright 互換 API を WebDriver BiDi 上に実装した MoonBit ライブラリです。
 関数名は MoonBit 流儀の `snake_case` で提供します。
 
+## 開発時の検証
+
+`just release-check` でフォーマット・型チェック・単体テストを実行します。
+ブラウザ統合テストは次の手順で実行します。
+
+```sh
+pnpm --dir test/integration install --frozen-lockfile
+pnpm --dir test/integration exec playwright install chromium
+just test-integration
+```
+
+統合テストは設定の受け渡しに加え、MoonBit の公開 API から実際の Chromium を
+BiDi 経由で操作し、DOM の取得・ラベル検索・テキストによるクリックを検証します。
+
 ## インストール
 
 ```bash
